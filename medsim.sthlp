@@ -114,7 +114,7 @@ University of Chicago{p_end}
 
 {title:References}
 
-{pstd}Wodtke GT, Zhou X, and Elwert F. Causal Mediation Analysis. In preparation. {p_end}
+{pstd}Wodtke, GT and X Zhou. Causal Mediation Analysis. In preparation. {p_end}
 
 {title:Also see}
 
