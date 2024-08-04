@@ -37,7 +37,7 @@ Options are {opt reg:ress}, {opt log:it}, or {opt poi:sson}.
 
 {title:Options}
 
-{phang}{opt nsim(integer 200)} - this option specifies the number of simulated values generated for the potential outcomes (the default is 200).
+{phang}{opt nsim(integer)} - this option specifies the number of simulated values generated for the potential outcomes (the default is 200).
 
 {phang}{opt cvars(varlist)} - this option specifies the list of baseline covariates to be included in the analysis. Categorical 
 variables need to be coded as a series of dummy variables before being entered as covariates.
