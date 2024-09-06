@@ -5,12 +5,12 @@
 ## Syntax
 
 ```stata
-medsim varname, dvar(varname) mvar(varname) d(real) dstar(real) mreg(string) yreg(string) [options]
+medsim depvar, dvar(varname) mvar(varname) d(real) dstar(real) mreg(string) yreg(string) [options]
 ```
 
 ### Required Arguments
 
-- `varname`: Specifies the outcome variable.
+- `depvar`: Specifies the outcome variable.
 - `dvar(varname)`: Specifies the treatment variable.
 - `mvar(varname)`: Specifies the mediator variable.
 - `d(real)`: Specifies the reference level of treatment.
