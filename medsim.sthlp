@@ -13,12 +13,26 @@
 {title:Syntax}
 
 {p 8 18 2}
-{cmd:medsim} {varname} {ifin} [{it:{help weight:pweight}}] {cmd:,} dvar({varname}) mvar({varname}) 
-d({it:real}) dstar({it:real}) mreg(string) yreg(string) nsim({it:integer}) 
-[cvars({varlist})) {opt nointer:action} {opt cxd} {opt cxm} 
-{reps({it:integer}) strata({varname}) cluster({varname}) level(cilevel) seed({it:passthru})]
+{cmd:medsim} {depvar} {ifin} [{it:{help weight:pweight}}] {cmd:,} 
+{opt dvar(varname)} 
+{opt mvar(varname)} 
+{opt d(real)} 
+{opt dstar(real)} 
+{opt mreg(string)} 
+{opt yreg(string)} 
+{opt nsim(integer)} 
+{opt cvars(varlist)} 
+{opt nointer:action} 
+{opt cxd} 
+{opt cxm} 
+{opt reps(integer)} 
+{opt strata(varname)} 
+{opt cluster(varname)}
+{opt level(cilevel)} 
+{opt seed(passthru)}
+{opt detail}
 
-{phang}{opt varname} - this specifies the outcome variable.
+{phang}{opt depvar} - this specifies the outcome variable.
 
 {phang}{opt dvar(varname)} - this specifies the treatment (exposure) variable.
 

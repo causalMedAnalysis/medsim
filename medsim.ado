@@ -8,7 +8,7 @@ program define medsim, eclass
 
 	version 15	
 
-	syntax varname(numeric) [if][in] [pweight], ///
+	syntax varlist(min=1 max=1 numeric) [if][in] [pweight], ///
 		dvar(varname numeric) ///
 		mvar(varname numeric) ///
 		d(real) ///

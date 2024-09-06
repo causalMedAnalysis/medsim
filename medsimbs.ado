@@ -8,7 +8,7 @@ program define medsimbs, rclass
 	
 	version 15	
 
-	syntax varname(numeric) [if][in] [pweight], ///
+	syntax varlist(min=1 max=1 numeric) [if][in] [pweight], ///
 		dvar(varname numeric) ///
 		mvar(varname numeric) ///
 		d(real) ///
@@ -29,7 +29,6 @@ program define medsimbs, rclass
 		}
 		
 	local yvar `varlist'
-	local cvar `cvars'
 
 	local yregtypes regress logit poisson
 	local nyreg : list posof "`yreg'" in yregtypes
@@ -37,9 +36,6 @@ program define medsimbs, rclass
 		display as error "Error: yreg must be chosen from: `yregtypes'."
 		error 198		
 		}
-	else {
-		local yreg : word `nyreg' of `yregtypes'
-		}	
 
 	local mregtypes regress logit poisson
 	local nmreg : list posof "`mreg'" in mregtypes
@@ -47,9 +43,6 @@ program define medsimbs, rclass
 		display as error "Error: mreg must be chosen from: `mregtypes'."
 		error 198		
 		}
-	else {
-		local mreg : word `nmreg' of `mregtypes'
-		}	
 		
 	if ("`nointeraction'" == "") {
 		tempvar inter
@@ -57,7 +50,7 @@ program define medsimbs, rclass
 		}
 
 	if ("`cxd'"!="") {	
-		foreach c in `cvar' {
+		foreach c in `cvars' {
 			tempvar `dvar'X`c'
 			gen ``dvar'X`c'' = `dvar' * `c' if `touse'
 			local cxd_vars `cxd_vars'  ``dvar'X`c''
@@ -65,7 +58,7 @@ program define medsimbs, rclass
 		}
 
 	if ("`cxm'"!="") {	
-		foreach c in `cvar' {
+		foreach c in `cvars' {
 			tempvar `mvar'X`c'
 			gen ``mvar'X`c'' = `mvar' * `c' if `touse'
 			local cxm_vars `cxm_vars'  ``mvar'X`c''
@@ -103,10 +96,10 @@ program define medsimbs, rclass
 	
 	if (("`mreg'"=="regress") & ("`yreg'"=="regress")) {
 		
-		regress `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		regress `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		regress `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		regress `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -116,7 +109,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}
@@ -127,7 +120,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}
@@ -145,13 +138,13 @@ program define medsimbs, rclass
 				}
 
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}
@@ -167,13 +160,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}			
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}
@@ -188,7 +181,7 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
@@ -206,10 +199,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="logit") & ("`yreg'"=="regress")) {
 		
-		logit `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		logit `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		regress `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		regress `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -219,7 +212,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}
@@ -230,7 +223,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}
@@ -248,13 +241,13 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}
@@ -270,13 +263,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}			
@@ -291,7 +284,7 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
@@ -309,10 +302,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="poisson") & ("`yreg'"=="regress")) {
 		
-		poisson `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		poisson `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 				
-		regress `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		regress `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -322,7 +315,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
@@ -333,7 +326,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
@@ -351,13 +344,13 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}			
@@ -373,13 +366,13 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}			
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}			
@@ -394,7 +387,7 @@ program define medsimbs, rclass
 				}
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}						
@@ -412,10 +405,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="regress") & ("`yreg'"=="logit")) {
 		
-		regress `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		regress `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		logit `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		logit `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -425,7 +418,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}						
@@ -436,7 +429,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}						
@@ -454,13 +447,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}						
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}		
@@ -476,13 +469,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}						
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}					
@@ -497,7 +490,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}				
@@ -515,10 +508,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="logit") & ("`yreg'"=="logit")) {
 		
-		logit `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		logit `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		logit `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		logit `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -528,7 +521,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}				
@@ -539,7 +532,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -557,13 +550,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}					
@@ -579,13 +572,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 			
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}								
@@ -600,7 +593,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -618,10 +611,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="poisson") & ("`yreg'"=="logit")) {
 		
-		poisson `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		poisson `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 				
-		logit `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		logit `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -631,7 +624,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -642,7 +635,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -660,13 +653,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}				
@@ -682,13 +675,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}				
@@ -703,7 +696,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}										
@@ -722,10 +715,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="regress") & ("`yreg'"=="poisson")) {
 		
-		regress `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		regress `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		poisson `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		poisson `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -735,7 +728,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -746,7 +739,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}										
@@ -764,13 +757,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}										
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}				
@@ -786,13 +779,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}										
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}							
@@ -807,7 +800,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -825,10 +818,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="logit") & ("`yreg'"=="poisson")) {
 		
-		logit `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		logit `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 		
-		poisson `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		poisson `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -838,7 +831,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -849,7 +842,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
@@ -867,13 +860,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}									
@@ -889,13 +882,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}											
@@ -910,7 +903,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}								
@@ -928,10 +921,10 @@ program define medsimbs, rclass
 
 	if (("`mreg'"=="poisson") & ("`yreg'"=="poisson")) {
 		
-		poisson `mvar' `dvar' `cvar' `cxd_vars' [`weight' `exp'] if `touse'
+		poisson `mvar' `dvar' `cvars' `cxd_vars' [`weight' `exp'] if `touse'
 		est store Mmodel_r001
 				
-		poisson `yvar' `mvar' `dvar' `inter' `cvar' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
+		poisson `yvar' `mvar' `dvar' `inter' `cvars' `cxd_vars' `cxm_vars' [`weight' `exp'] if `touse'
 		est store Ymodel_r001
 		
 		qui forval i=1/`nsim' {
@@ -941,7 +934,7 @@ program define medsimbs, rclass
 			replace `dvar'=`d' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}					
@@ -952,7 +945,7 @@ program define medsimbs, rclass
 			replace `dvar'=`dstar' if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}								
@@ -970,13 +963,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}								
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}								
@@ -992,13 +985,13 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}								
 
 			if ("`cxm'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``mvar'X`c'' = `mvar' * `c' if `touse'
 					}
 				}									
@@ -1013,7 +1006,7 @@ program define medsimbs, rclass
 				}
 				
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 					}
 				}							
