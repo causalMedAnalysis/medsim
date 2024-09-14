@@ -25,12 +25,8 @@
 {opt nointer:action} 
 {opt cxd} 
 {opt cxm} 
-{opt reps(integer)} 
-{opt strata(varname)} 
-{opt cluster(varname)}
-{opt level(cilevel)} 
-{opt seed(passthru)}
 {opt detail}
+[{it:{help bootstrap##options:bootstrap_options}}]
 
 {phang}{opt depvar} - this specifies the outcome variable.
 
@@ -44,10 +40,10 @@
 the treatment contrast of interest.
 
 {phang}{opt mreg}{cmd:(}{it:string}{cmd:)}}specify the form of regression model to be estimated for the mediator. 
-Options are {opt reg:ress}, {opt log:it}, or {opt poi:sson}.
+Options are {opt regress}, {opt logit}, or {opt poisson}.
 
 {phang}{opt yreg}{cmd:(}{it:string}{cmd:)}}specify the form of regression model to be estimated for the outcome. 
-Options are {opt reg:ress}, {opt log:it}, or {opt poi:sson}.
+Options are {opt regress}, {opt logit}, or {opt poisson}.
 
 {title:Options}
 
@@ -65,31 +61,22 @@ included in the mediator and outcome models.
 {phang}{opt cxm} - this option specifies that all two-way interactions between the mediator and baseline covariates are
 included in the outcome model.
 
-{phang}{opt reps(integer 200)} - this option specifies the number of replications for bootstrap resampling (the default is 200).
-
-{phang}{opt strata(varname)} - this option specifies a variable that identifies resampling strata. If this option is specified, 
-then bootstrap samples are taken independently within each stratum.
-
-{phang}{opt cluster(varname)} - this option specifies a variable that identifies resampling clusters. If this option is specified,
-then the sample drawn during each replication is a bootstrap sample of clusters.
-
-{phang}{opt level(cilevel)} - this option specifies the confidence level for constructing bootstrap confidence intervals. If this 
-option is omitted, then the default level of 95% is used.
-
-{phang}{opt seed(passthru)} - this option specifies the seed for bootstrap resampling. If this option is omitted, then a random 
-seed is used and the results cannot be replicated. {p_end}
-
 {phang}{opt detail} - this option prints the fitted models for the mediator and outcome in addition to the effect estimates.
+
+{phang}{it:{help bootstrap##options:bootstrap_options}} - all {help bootstrap} options are available. {p_end}
 
 {title:Description}
 
 {pstd}{cmd:medsim} performs causal mediation analysis using simulation and general linear models for both the mediator and outcome. 
-Two models are estimated: a model for the mediator conditional on treatment and baseline covariates (if specified), 
-and a model for the outcome conditional on treatment, the mediator, and the baseline covariates. These models may be 
-linear, logistic, or poisson regressions. These modules are then used to simulate potential outcomes and construct
+Two models are estimated: a model for the mediator conditional on the exposure and baseline covariates (if specified), 
+and a model for the outcome conditional on the exposure, the mediator, and the baseline covariates. These models may be 
+linear, logistic, or poisson regressions. After they are fit, the models are then used to simulate potential outcomes and construct
 estimates of total, natural direct, and natural indirect effects.
 
-{pstd}{cmd:medsim} provides estimates of the average total, natural direct, and natural indirect effects.{p_end}
+{pstd}If using {help pweights} from a complex sample design that require rescaling to produce valid boostrap estimates, be sure to appropriately 
+specify the strata(), cluster(), and size() options from the {help bootstrap} command so that Nc-1 clusters are sampled from each stratum 
+with replacement, where Nc denotes the number of clusters per stratum. Failing to properly adjust the bootstrap procedure to account
+for a complex sample design and its associated sampling weights could lead to invalid inferential statistics. {p_end}
 
 {title:Examples}
 
@@ -98,15 +85,15 @@ estimates of total, natural direct, and natural indirect effects.
 
 {pstd} no interaction between treatment and mediator, percentile bootstrap CIs with default settings: {p_end}
  
-{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) nsim(200) nointer reps(200)} {p_end}
+{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) nointer} {p_end}
 
-{pstd} treatment-mediator interaction, percentile bootstrap CIs with default settings: {p_end}
+{pstd} treatment-mediator interaction, percentile bootstrap CIs with 1000 replications: {p_end}
  
-{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) nsim(200) reps(200)} {p_end}
+{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) rep(1000)} {p_end}
 
-{pstd} treatment-mediator interaction, all two-way interactions between baseline covariates and treatment, percentile bootstrap CIs with default settings: {p_end}
+{pstd} treatment-mediator interaction, all two-way interactions between baseline covariates and treatment, percentile bootstrap CIs with default settings, 2000 simulated values: {p_end}
  
-{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) nsim(200) cxd reps(200)} {p_end}
+{phang2}{cmd:. medsim std_cesd_age40, dvar(att22) mvar(ever_unemp_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3)	d(1) dstar(0) mreg(logit) yreg(regress) nsim(2000) cxd} {p_end}
 
 {title:Saved results}
 
