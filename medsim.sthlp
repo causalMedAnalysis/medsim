@@ -71,7 +71,7 @@ included in the outcome model.
 Two models are estimated: a model for the mediator conditional on the exposure and baseline covariates (if specified), 
 and a model for the outcome conditional on the exposure, the mediator, and the baseline covariates. These models may be 
 linear, logistic, or poisson regressions. After they are fit, the models are then used to simulate potential outcomes and construct
-estimates of total, natural direct, and natural indirect effects.
+estimates of total, natural direct, and natural indirect effects. Inferential statistics are computed using the nonparametric bootstrap.
 
 {pstd}If using {help pweights} from a complex sample design that require rescaling to produce valid boostrap estimates, be sure to appropriately 
 specify the strata(), cluster(), and size() options from the {help bootstrap} command so that Nc-1 clusters are sampled from each stratum 
